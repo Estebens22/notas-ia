@@ -1,0 +1,11 @@
+node_modules/
+models/*.bin
+# cualquier perfil de Chrome (datos de sesión, caché, etc.)
+*profile*/
+*.webm
+*.wav
+*.log
+*-transcript*.txt
+*.png
+.DS_Store
+package-lock.json
