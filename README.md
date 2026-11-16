@@ -99,6 +99,22 @@ Serví cualquiera: **Groq (free tier, muy rápido)**, **Gemini (free)**, Ollama 
 - [ ] Soporte Zoom / Teams (misma idea: unir por link + cable de audio).
 - [ ] Versión headless en servidor Linux (Xvfb + PulseAudio null-sink) para correr 24/7.
 
+## Correr en la nube / Linux (headless)
+
+El diseño es **genérico**: no depende de ninguna cuenta ni credencial propia. Para correrlo 24/7 en una VM Linux (en vez de una Mac):
+
+- **Navegador headless:** Chrome bajo **Xvfb** (display virtual) — Google Meet suele necesitar display, no corre 100% headless.
+- **Audio:** en vez de BlackHole, un **null-sink de PulseAudio** (`pactl load-module module-null-sink`) y grabás su `.monitor` con ffmpeg (`-f pulse -i <sink>.monitor`). Misma idea que BlackHole, equivalente en Linux.
+- El resto (unir como invitado, whisper, resumen por `.env`) es **idéntico**.
+
+> Nota: desde IPs de datacenter Google puede mirar con más lupa; probá el *join* antes de automatizar.
+
+## Configuración (nada hardcodeado)
+
+- **Ningún secreto en el repo.** Todo lo sensible va en `.env` (gitignoreado). Copiá `.env.example`.
+- El **modelo de whisper** lo descargás vos a `models/`.
+- El **LLM del resumen** es cualquiera compatible con OpenAI (tu elección).
+
 ## Licencia
 
-Privado por ahora. Se planea liberar como **open source (MIT)** más adelante.
+**MIT** — libre para usar, modificar y redistribuir. Ver [`LICENSE`](LICENSE).
