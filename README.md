@@ -55,27 +55,47 @@ Para **oír y grabar a la vez**: en *Configuración de Audio MIDI* creá un **"D
 
 ## Uso
 
+**Recomendado — flujo automático completo** (`bot.js`):
 ```bash
-./record.sh "https://meet.google.com/xxx-xxxx-xxx" 120
-# → une "Notas IA" al Meet (admitilo), graba 120s, imprime la transcripción
+node bot.js "https://meet.google.com/xxx-xxxx-xxx"
+# une "Notas IA" → vos lo admitís → arranca a grabar SOLO →
+# detecta cuando termina la reunión → transcribe → resume → guarda todo en recordings/<fecha>-<id>/
+```
+El bot **cambia la salida de audio a BlackHole mientras graba y la restaura al terminar** (aunque falle). Resultado: `recordings/<fecha>-<id>/transcript.txt` + `summary.md` + `audio.wav`.
+
+**Manual / para probar:**
+```bash
+./record.sh "<link>" 120   # graba 120s fijos y transcribe (sin esperar admisión ni resumir)
+node join.js "<link>"      # solo unir el bot, sin grabar
+node summarize.js transcript.txt   # resumir una transcripción cualquiera
 ```
 
-- `join.js "<link>"` → solo unir el bot (sin grabar), útil para probar la entrada.
+### Resumen con IA (opcional, configurable)
+
+El resumen usa un **endpoint compatible con OpenAI** definido en `.env` (copiá `.env.example`):
+```
+SUMMARY_URL=https://tu-endpoint/v1
+SUMMARY_KEY=tu_api_key
+SUMMARY_MODEL=tu-modelo
+```
+Serví cualquiera: **Groq (free tier, muy rápido)**, **Gemini (free)**, Ollama propio, OpenAI… Si el endpoint falla o es lento, **la transcripción igual queda guardada** (el resumen es un extra). Un LLM 7B en CPU es demasiado lento para esto → usá uno rápido.
 
 ## Archivos
 
 | Archivo | Qué hace |
 |---|---|
-| `join.js` | Une el bot como invitado "Notas IA" y se queda en la sala. |
-| `record.sh` | Orquesta: une + graba (BlackHole) + transcribe (whisper). |
+| `bot.js` | **Orquestador completo**: une → espera admisión → graba → detecta fin → transcribe → resume. |
+| `join.js` | Une el bot como invitado "Notas IA" (sin grabar). |
+| `record.sh` | Grabación manual de N segundos + transcripción. |
+| `summarize.js` | Resume una transcripción con el LLM de `.env`. |
 | `models/` | Modelo de whisper (no versionado). |
 
 ## Pendiente / roadmap
 
-- [ ] Finalizar y probar la captura por BlackHole de punta a punta (en progreso).
-- [ ] Detección automática de "ya me admitieron" para arrancar a grabar sola (hoy graba tras un delay fijo).
-- [ ] Parar la grabación cuando la reunión termina (detectar fin de llamada).
-- [ ] Resumen automático de la transcripción (puntos clave + tareas) con un LLM.
+- [x] Captura de audio por BlackHole de punta a punta (probado en vivo).
+- [x] Auto-grabar al ser admitido + auto-parar al terminar la reunión (`bot.js`).
+- [x] Resumen automático con LLM configurable (requiere endpoint rápido).
+- [ ] Multi-Output permanente (oír y grabar a la vez sin cambiar salida) — hoy el bot conmuta y restaura solo.
 - [ ] Soporte Zoom / Teams (misma idea: unir por link + cable de audio).
 - [ ] Versión headless en servidor Linux (Xvfb + PulseAudio null-sink) para correr 24/7.
 

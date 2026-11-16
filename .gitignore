@@ -9,3 +9,7 @@ models/*.bin
 *.png
 .DS_Store
 package-lock.json
+
+# config local y grabaciones
+.env
+recordings/
